@@ -1,0 +1,3 @@
+rootProject.name='MsLogger'
+include ':app'
+include ':mslogger'

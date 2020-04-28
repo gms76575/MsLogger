@@ -3,7 +3,9 @@ package com.gengms.mslogger;
 public class MsLogger {
     private static ILogger sLogger = new MsNoneLogger();
     public static void init(ILogger logger) {
-        sLogger = logger;
+        if (logger != null) {
+            sLogger = logger;
+        }
     }
     public static void v(String tag, String msg) {
         sLogger.v(tag, msg);

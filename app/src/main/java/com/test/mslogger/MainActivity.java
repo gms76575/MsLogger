@@ -3,10 +3,12 @@ package com.test.mslogger;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Environment;
 
 import com.gengms.mslogger.ILogger;
 import com.gengms.mslogger.IPrintController;
 import com.gengms.mslogger.MsConsoleLogger;
+import com.gengms.mslogger.MsFileLogger;
 import com.gengms.mslogger.MsLogger;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initConsoleLogger();
+        initLogger();
         testLogger();
     }
 
@@ -27,22 +29,25 @@ public class MainActivity extends AppCompatActivity {
         MsLogger.w(TAG, "wwwwwwwwwwww");
         MsLogger.e(TAG, "eeeeeeeeeeee");
     }
+    private void initLogger() {
+        ILogger logger;
+        if (true/*BuildConfig.DEBUG*/) {
+            logger = initDebugLogger();
+        } else {
+            logger = initReleaseLogger();
+        }
+        MsLogger.init(logger);
+    }
 
-    private void initConsoleLogger() {
+    private ILogger initDebugLogger() {
         MsConsoleLogger consoleLogger = new MsConsoleLogger();
-        consoleLogger.setPrintController(new IPrintController() {
-            @Override
-            public boolean toPrint(char level) {
-                switch (level) {
-                    case ILogger.LEVEL_E:
-                    case ILogger.LEVEL_W:
-                    case ILogger.LEVEL_I:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-        MsLogger.init(consoleLogger);
+        consoleLogger.setPrintController(level-> true);
+        return consoleLogger;
+    }
+
+    private ILogger initReleaseLogger() {
+        MsFileLogger consoleLogger = new MsFileLogger(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)+"/logs");
+        consoleLogger.setPrintController(level-> ILogger.LEVEL_E == level);
+        return consoleLogger;
     }
 }
